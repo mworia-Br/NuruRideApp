@@ -21,6 +21,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final loc.Location location = loc.Location();
   StreamSubscription<loc.LocationData>? _locationSubscription;
+  String riderId = '';
+  String orderId = '';
 
   @override
   void initState() {
@@ -38,16 +40,36 @@ class _MyAppState extends State<MyApp> {
       ),
       body: Column(
         children: [
-          TextButton(
-              onPressed: () {
-                _getLocation();
-              },
-              child: Text('add my location')),
-          TextButton(
-              onPressed: () {
-                _listenLocation();
-              },
-              child: Text('enable live location')),
+          Text('Rider Accept Order Dispatch'),
+          TextField(
+            onChanged: (value) => riderId = value,
+            decoration: InputDecoration(labelText: 'Rider ID'),
+          ),
+          TextField(
+            onChanged: (value) => orderId = value,
+            decoration: InputDecoration(labelText: 'Order ID'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _getLocation();
+            },
+            child: Text('Submit Dispatch Details'),
+          ),
+          Text('Rider start live location'),
+          TextField(
+            onChanged: (value) => riderId = value,
+            decoration: InputDecoration(labelText: 'Rider ID'),
+          ),
+          TextField(
+            onChanged: (value) => orderId = value,
+            decoration: InputDecoration(labelText: 'Order ID'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _listenLocation();
+            },
+            child: Text('Start Live Location'),
+          ),
           TextButton(
               onPressed: () {
                 _stopListening();
@@ -98,10 +120,10 @@ class _MyAppState extends State<MyApp> {
   _getLocation() async {
     try {
       final loc.LocationData _locationResult = await location.getLocation();
-      await FirebaseFirestore.instance.collection('location').doc('user1').set({
+      await FirebaseFirestore.instance.collection('location').doc(orderId).set({
         'latitude': _locationResult.latitude,
         'longitude': _locationResult.longitude,
-        'name': 'john'
+        'name': riderId
       }, SetOptions(merge: true));
     } catch (e) {
       print(e);
@@ -116,10 +138,10 @@ class _MyAppState extends State<MyApp> {
         _locationSubscription = null;
       });
     }).listen((loc.LocationData currentlocation) async {
-      await FirebaseFirestore.instance.collection('location').doc('user1').set({
+      await FirebaseFirestore.instance.collection('location').doc(orderId).set({
         'latitude': currentlocation.latitude,
         'longitude': currentlocation.longitude,
-        'name': 'john'
+        'name': riderId
       }, SetOptions(merge: true));
     });
   }
