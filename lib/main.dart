@@ -6,10 +6,24 @@ import 'package:flutter/material.dart';
 import 'package:google_map_live/mymap.dart';
 import 'package:location/location.dart' as loc;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'fcm_service.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.notification?.title}");
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // Request permission to receive notifications
+  await FirebaseMessaging.instance.requestPermission();
+
+  // Register the background handler
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  PushNotificationService().initialize();
   runApp(MaterialApp(home: MyApp()));
 }
 
